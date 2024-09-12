@@ -83,6 +83,7 @@
 <body>
     <div class="container">
         <h1>The Cocktail Dictionary</h1>
+        
         <!--COCKTAIL NAME INPUT-->
         <form id="myForm" method="POST" action ="/search-cocktail">
             <label for="cocktailNameInput">Search Cocktail Name:</label>
@@ -102,7 +103,9 @@
         </form>
         <div class="response-area">
             <!--COCKTAIL RESULT-->
-            <% if (drinkName) { %>
+            <% if(error) { %>
+                <h2><No result found></h2>
+            <% } else if (drinkName) { %>
                 <h2 class="drink-name">
                     <%=drinkName %>
                 </h2>
@@ -134,20 +137,18 @@
                         <%=error%>
                     </div>
                 <%}%> 
-            <%} else if (alcName) { %>
+            <% } else if (alcName) { %>
                 <!--ALCOHOL RESULT-->
                 <h2 class="alc-name">
-                    Alcohol: <%= ingredient %>
+                    Alcohol: <%= data.strIngredient %> <!--was ingredient-->
                 </h2>
-                <p>Description: <%= description %></p>
-            <% } else { %>
-                <h2>No result found</h2>
+                <p>Description: <%= data.strDescription %></p> <!--was description-->
             <% } %>
             <% if (locals.error) { %>
                 <div id="tag-error" class="tag-error">
                     <%= error %>
                 </div>
-            <% } %>    
+            <% } %>
         </div>     
     </div>
 </body>
