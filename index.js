@@ -9,8 +9,10 @@ const API_URL = "https://www.thecocktaildb.com/api/json/v1/1";
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get("/", async (req, res) => {
+    console.log("11111");
     res.render("index.ejs", { 
-        drinkName: null,
+        drinkName: 'test',
+        alcName: 'aaa',
         ingredients: [],
         instructionsSteps: [],
         image: null,
@@ -22,7 +24,7 @@ app.get("/", async (req, res) => {
 app.post("/search-cocktail" ,async (req, res) => { 
     try{
         const cocktailName = req.body.cocktailName; //from user input
-        const result = await axios.get(`${API_URL}/search.php?s=${cocktailName}`);//ONLY /SEARCH OR /SEARCH.PHP?
+        const result = await axios.get(`${API_URL}/search.php?s=${cocktailName}`);
         if (!result.data.drinks) {
             return res.render("index.ejs", { 
                 error: "No drinks found for this name!",
@@ -44,11 +46,12 @@ app.post("/search-cocktail" ,async (req, res) => {
             }
         }
         
-        res.render("index.ejs", { 
+        return res.render("index.ejs", { 
             drinkName: cocktail.strDrink, 
             ingredients: ingredients , //AN ARRAY, FOR LOOP IT WHEN CREATING <LI> IN EJS
             instructionsSteps: instructionsSteps,
             image: cocktail.strDrinkThumb || null,
+            error: null
         });
     }
     catch (error){
@@ -58,10 +61,11 @@ app.post("/search-cocktail" ,async (req, res) => {
 });
 
 // search alcohol name
+// add key values so user can input id,and list all the cocktails by the alcName
 app.post("/search-alcohol" ,async (req, res) => { 
     try{
-        const alcName = req.body.alcName;
-        const result = await axios.get(`${API_URL}/search.php?i=${alcName}`);//ONLY /SEARCH OR /SEARCH.PHP?
+        const alcoholName = req.body.alcName;
+        const result = await axios.get(`${API_URL}/search.php?i=${alcoholName}`);//ONLY /SEARCH OR /SEARCH.PHP?
         if (!result.data.ingredients) {
             return res.render("index.ejs", { 
                 error: "No alcohol found for this name!",
@@ -69,14 +73,22 @@ app.post("/search-alcohol" ,async (req, res) => {
         }
         const alcohol = result.data.ingredients[0];
 
-        res.render("index.ejs", { 
-            ingredient: alcName.strIngredient, 
-            description: alcName.strDescription, 
+        return res.render("index.ejs", { 
+            // drinkName: null,
+            // alcName: null,
+            // ingredient: alcohol.strIngredient, 
+            // description: alcohol.strDescription, 
+            // error:null 
+
+            data: alcohol,
+            error: null,
+            drinkName:null,
+            alcName: null,
         });
     }
     catch (error){
         console.error(error);
-        res.status(500).send('Error retrieving cocktail data');
+        res.status(500).send('Error retrieving alcohol data');
     }
 });
 
