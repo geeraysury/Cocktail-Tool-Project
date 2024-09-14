@@ -8,16 +8,45 @@ const API_URL = "https://www.thecocktaildb.com/api/json/v1/1";
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
+let filterCategoryData = await axios.post(`${API_URL}/list.php?c=list`);
+let filterCategory = null;
+if (filterCategoryData.data.drinks) {
+    filterCategory = filterCategoryData.data.drinks;
+}
+
+let filterAlcoholData = await axios.post(`${API_URL}/list.php?a=list`);
+let filterAlcohol = null;
+if (filterAlcoholData.data.drinks) {
+    filterAlcohol = filterAlcoholData.data.drinks;
+}
+
+let filterGlassData = await axios.post(`${API_URL}/list.php?g=list`);
+let filterGlass = null;
+if (filterGlassData.data.drinks) {
+    filterGlass = filterGlassData.data.drinks;
+}
+
+// if ()
+
+// masukin semua filter di array
+
 app.get("/", async (req, res) => {
     res.render("index.ejs", { 
-        drinkName: 'test',
-        alcName: 'aaa',
-        ingredients: [],
-        instructionsSteps: [],
+        drinkName: 'Waiting for an Input....',
+        alcName: '',
+        ingredients: '',
+        filterCategory: filterCategory,
+        filterAlcohol: filterAlcohol,
+        filterGlass: filterGlass,
+        instructionsSteps: '',
         image: null,
         error: null,
     });
 });
+// SEARCH KEYWORD: best practice to refactor (so not repetitive, easier structure) code and restructure code into different ejs files for reusability
+// BIAR EFFICIENT DAN GAUSAH ERROR AND NULL NULL
+// pisah input semua di beda2 ejs (error, cocktail, alcohol)
+// res.render (each ejs file)
 
 // search cocktail by name
 app.post("/search-cocktail" ,async (req, res) => { 
@@ -27,6 +56,9 @@ app.post("/search-cocktail" ,async (req, res) => {
         if (!result.data.drinks) {
             return res.render("index.ejs", { 
                 error: "No cocktails found for this name!",
+                filterCategory: filterCategory,
+                filterAlcohol: filterAlcohol,
+                filterGlass: filterGlass,
             });
         }
         const cocktail = result.data.drinks[0];
@@ -50,7 +82,10 @@ app.post("/search-cocktail" ,async (req, res) => {
             ingredients: ingredients , //AN ARRAY, FOR LOOP IT WHEN CREATING <LI> IN EJS
             instructionsSteps: instructionsSteps,
             image: cocktail.strDrinkThumb || null,
-            error: null
+            error: null,
+            filterCategory: filterCategory,
+            filterAlcohol: filterAlcohol,
+            filterGlass: filterGlass,
         });
     }
     catch (error){
@@ -68,6 +103,9 @@ app.post("/search-alcohol" ,async (req, res) => {
         if (!result.data.ingredients) {
             return res.render("index.ejs", { 
                 error: "No alcohol found for this name!",
+                filterCategory: filterCategory,
+                filterAlcohol: filterAlcohol,
+                filterGlass: filterGlass,
             });
         }
        
@@ -78,7 +116,11 @@ app.post("/search-alcohol" ,async (req, res) => {
                 alcName: alcoholName,
                 ingredient: alcohol.strIngredient ? alcohol.strIngredient : '', 
                 description: alcohol.strDescription ? alcohol.strDescription : 'no  description found', 
-                error: null 
+                error: null,
+                filterCategory: filterCategory,
+                filterAlcohol: filterAlcohol,
+                filterGlass: filterGlass,
+
     
                 // data: alcohol,
                 // error: null,
@@ -89,6 +131,9 @@ app.post("/search-alcohol" ,async (req, res) => {
         else{
             return res.render("index.ejs", { 
                 error: "No alcohol found for this name!",
+                filterCategory: filterCategory,
+                filterAlcohol: filterAlcohol,
+                filterGlass: filterGlass,
             });
         }
     }
@@ -124,7 +169,10 @@ app.post("/random-cocktail" ,async (req, res) => {
             ingredients: ingredients , //AN ARRAY, FOR LOOP IT WHEN CREATING <LI> IN EJS
             instructionsSteps: instructionsSteps,
             image: cocktail.strDrinkThumb || null,
-            error: null
+            error: null,
+            filterCategory: filterCategory,
+            filterAlcohol: filterAlcohol,
+            filterGlass: filterGlass,
         });
     }
     catch (error){
@@ -140,16 +188,78 @@ app.post("/first-letter-cocktail" ,async (req, res) => {
         if (!result.data.drinks) {
             return res.render("index.ejs", { 
                 drinks: [], 
-                error: "No drinks found for this letter!" 
+                error: "No drinks found for this letter!",
+                filterCategory: filterCategory,
+                filterAlcohol: filterAlcohol,
+                filterGlass: filterGlass,
             });
         }
-        const listCocktails = result.data.drinks;
+        let drinks = result.data.drinks;
+
+        let alcoholLevel = req.body.alcLevel;
+        let drinkCategory = req.body.category;
+        const sortOrder = req.body.sortOrder;
+
+        // to count ingredients in each drink
+        const countIngredients = (drink) => {
+            let count = 0;
+            for (let key in drink) {
+                if (key.includes('strIngredient') && drink[key] !== null && drink[key] !== "") {
+                    count++;
+                }
+            }
+            return count;
+        };
+
+        // function to count instructions in each drink
+        const countInstructionSteps = (instructions) => {
+            const steps = instructions.split('.').filter(step => step.trim() !== "");
+            return steps.length;
+        };
+      
+        // Sort drinks by number of instruction steps
+        drinks.sort((a, b) => {
+            const stepsA = countInstructionSteps(a.strInstructions);
+            const stepsB = countInstructionSteps(b.strInstructions);
+        
+            // Apply both ascending and descending order logic
+            if (sortOrder === "instructions-ascending") {
+                return stepsA - stepsB;
+            } else if (sortOrder === "instructions-descending") {
+                return stepsB - stepsA;
+            } else {
+                return 0; 
+            }
+        });
+        if (alcoholLevel){ 
+            drinks = drinks.filter((drink) => drink.strAlcoholic === alcoholLevel);
+        }
+        if (drinkCategory){
+            drinks = drinks.filter((drink) => drink.strCategory === drinkCategory);
+        }
+
+        if (sortOrder === "name-ascending") {
+            drinks.sort((a, b) => a.strDrink.localeCompare(b.strDrink)); 
+        } else if (sortOrder === "name-descending") {
+            drinks.sort((a, b) => b.strDrink.localeCompare(a.strDrink)); 
+        } else if (sortOrder === "ingredients-ascending"){
+            drinks.sort((a, b) => countIngredients(a) - countIngredients(b));
+        } else if (sortOrder === "ingredients-descending"){
+            drinks.sort((a, b) => countIngredients(b) - countIngredients(a));
+        }
+
         //make each keys to an array element
         //use .filter method to only get str drink, put to str drink array
 
         return res.render("index.ejs", { 
-            listCocktails: listCocktails,
-            error: null
+            drinks: drinks,
+            error: null,
+            drinkName: null,
+            firstLetter: firstLetter,
+            alcName: null,
+            filterCategory: filterCategory,
+            filterAlcohol: filterAlcohol,
+            filterGlass: filterGlass,
         });
     }
     catch (error) {
