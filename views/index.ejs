@@ -33,10 +33,11 @@
             margin-bottom: 10px;
         }
 
-        .drink-name{
+        .title{
             text-align: center;
         }
-        .cocktailImage{
+
+        .image{
             display: block;
             margin-left: auto;
             margin-right: auto;
@@ -62,6 +63,9 @@
 
         h1 {
             text-align: center;
+            font-family: "Satisfy", cursive;
+            font-weight: 800;
+            font-style: normal;
         }
 
         .response-area {
@@ -72,10 +76,10 @@
         }
 
         #ok {
-            background-color:#FFB6C1;
+            background-color:#374a2b;
         }
         #ok:hover {
-            background-color: #b5606c;
+            background-color: #222c1c;
         }
     </style>
 </head>
@@ -86,7 +90,7 @@
         
         <!--COCKTAIL NAME INPUT-->
         <form id="myForm" method="POST" action ="/search-cocktail">
-            <label for="cocktailNameInput">Search Cocktail Name:</label>
+            <label for="cocktailNameInput">Search Cocktail Name for Recipe:</label>
             <input type="text" id="cocktailNameInput" name="cocktailName">
 
             <input id="ok" type="submit" value="Search">
@@ -96,22 +100,76 @@
 
         <!--ALCOHOL NAME INPUT-->
         <form id="myForm" method="POST" action="/search-alcohol">
-            <label for="alcNameInput">Search Alcohol Name:</label>
+            <label for="alcNameInput">Search Alcohol Name for Description:</label>
             <input type="text" id="alcNameInput" name="alcName">
 
             <input id="ok" type="submit" value="Search">
         </form>
+
+        <h3>OR</h3>
+
+        <!--RANDOM COCKTAIL BUTTON-->
+        <form id="myForm" method="POST" action ="/random-cocktail">
+            <input id="ok" type="submit" value="Click for a Random Cocktail Recipe">
+        </form>
+
+        <h3>OR</h3>
+
+        <form id="myForm" method="POST" action ="/first-letter-cocktail">
+            <label for="firstLetter">Search Cocktails by First Letter:</label>
+            <input type="text" id="firstLetter" name="firstLetterInput">
+            <!-- TO FILTER-->
+            <h4>Filter the Alcohol Level (optional)</h4>
+            <select name="alcLevel" class="form-select">
+                <option value=""></option>
+                <% for(var i=0; i < filterAlcohol.length; i++){ %>
+                    <option value=<%=filterAlcohol[i].strAlcoholic%>><%=filterAlcohol[i].strAlcoholic%></option>
+                <%}%>
+            </select>
+
+            <h4>Filter the Category (optional)</h4>
+            <select name="category" class="form-select">
+                <option value=""></option>
+                <% for(var i=0; i < filterCategory.length; i++){ %>
+                    <option value=<%=filterCategory[i].strCategory%>><%=filterCategory[i].strCategory%></option>
+                <%}%>
+            </select>
+
+            <h4>Filter the Glass Type (optional)</h4>
+            <select name="glassType" class="form-select">
+                <option value=""></option>
+                <% for(var i=0; i < filterGlass.length; i++){ %>
+                    <option value=<%=filterGlass[i].strGlass%>><%=filterGlass[i].strGlass%></option>
+                <%}%>
+            </select>
+            <h4>Sort by (optional)</h4>
+            <select name="sortOrder" class="form-select" id="sortOrder">
+                <option value=""></option>
+                <option value="name-ascending">Name: Ascending</option>
+                <option value="name-descending">Name: Descending</option>
+                <option value="ingredients-ascending">Ingredients Count: Ascending</option>
+                <option value="ingredients-descending">Ingredients Count: Descending</option>
+                <option value="instructions-ascending">Instructions Count: Ascending</option>
+                <option value="instructions-descending">Instructions Count: Descending</option>
+            </select>
+            <input id="ok" type="submit" value="Search">
+        </form>
+
+        <hr>
+
+        
+
         <div class="response-area">
             <!--COCKTAIL RESULT-->
             <% if(error) { %>
                 <h2><No result found></h2>
             <% } else if (drinkName) { %>
-                <h2 class="drink-name">
+                <h2 class="title">
                     <%=drinkName %>
                 </h2>
                 <!--HANDLE IMG ERROR (IF DRINK NOT FOUND)!!!!!!-->
                 <% if (image) { %> <!-- Check if image exists -->
-                    <img src="<%= image %>/preview" class="cocktailImage" alt="Image of <%= drinkName %>">
+                    <img src="<%= image %>/preview" class="image" alt="Image of <%= drinkName %>">
                 <% } %> 
                 
                 <h3>Ingredients:</h3>
@@ -139,16 +197,63 @@
                 <%}%> 
             <% } else if (alcName) { %>
                 <!--ALCOHOL RESULT-->
-                <h2 class="alc-name">
-                    Alcohol: <%= data.strIngredient %> <!--was ingredient-->
+                <h2 class="title">
+                    <%= ingredient %> 
                 </h2>
-                <p>Description: <%= data.strDescription %></p> <!--was description-->
-            <% } %>
-            <% if (locals.error) { %>
-                <div id="tag-error" class="tag-error">
-                    <%= error %>
-                </div>
-            <% } %>
+                <% const imgURL = 'https://www.thecocktaildb.com/images/ingredients/' + ingredient.toLowerCase() + '-Medium.png' %>
+                <img src= "<%= imgURL %>" alt="Alcohol Image" class="image">
+                <p>Description: <%- description.replace(/\r\n|\n/g, '<br>') %></p>
+
+                <% if (locals.error) { %>
+                    <div id="tag-error" class="tag-error">
+                        <%= error %>
+                    </div>
+                <% } %>
+                <!--list all the cocktails with the first letter-->
+            <% } else if (firstLetter) { %>
+                <% if (drinks && drinks.length > 0) { %>
+                    <ul class="ingredients">
+                        <%drinks.forEach(function(drink) {%>
+                            <li>
+                                <h2><%= drink.strDrink %></h2>
+                                <!--HANDLE IMG ERROR (IF DRINK NOT FOUND)!!!!!!-->
+                                <img src="<%= drink.strDrinkThumb %>/preview" alt="<%= drink.strDrink %> image" />
+                                <h3>Ingredients:</h3>
+                                <ul>
+                                    <% for (let i = 1; i <= 15; i++) { %>
+                                        <% if (drink['strIngredient' + i]) { %>
+                                            <li>
+                                                <%= drink['strMeasure' + i] ? drink['strMeasure' + i] + ' ' : '' %> 
+                                                <%= drink['strIngredient' + i] %>
+                                            </li>
+                                        <% } %>
+                                    <% } %>
+                                </ul>
+
+                                <h3 class="instructions">
+                                    Instructions:
+                                </h3>
+                                <%const steps = drink.strInstructions.split('.'); %>
+                                <%steps.forEach(function(step, index) { %>
+                                    <%if (step.trim()) { %> 
+                                        <p>
+                                            <%= (index + 1) + '. ' + step.trim() %> <!-- Display step number and instruction -->
+                                        </p> 
+                                    <%}%>
+                                <%})%>
+                            </li>
+                            <hr>
+                        <%});%>
+                    </ul>
+                <%}%>
+                <% if (locals.error) { %>
+                    <div id="tag-error" class="tag-error">
+                        <%= error %>
+                    </div>
+                <% } %>
+            <%}%>
+
+            <!--FOR FILTER, PAKE ARRAY.FILTER METHOD, MATCH ID IN ARRAY WITH QUERY ID-->
         </div>     
     </div>
 </body>
