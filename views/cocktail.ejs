@@ -1,0 +1,31 @@
+<h2 class="title">
+    <%=drinkName %>
+</h2>
+<!--HANDLE IMG ERROR (IF DRINK NOT FOUND)!!!!!!-->
+<% if (image) { %> <!-- Check if image exists -->
+    <img src="<%= image %>/preview" class="image" alt="Image of <%= drinkName %>">
+<% } %> 
+
+<h3>Ingredients:</h3>
+<ul class="ingredients">
+    <% for(var i=0; i < ingredients.length; i++){ %>
+        <li>
+            <%= ingredients[i].measure %>  <%= ingredients[i].ingredient %>
+        </li>
+    <%}%>
+</ul>
+<h3 class="instructions">
+    Instructions:
+</h3>
+<ol>
+    <% for(var i = 0; i < instructionsSteps.length; i++) { %>
+        <li><%= instructionsSteps[i].trim() %>.</li> <!-- Trim any excess space and add a period -->
+    <% } %>
+</ol>
+
+
+<%if (locals.error) {%>
+    <div id="tag-error" class="tag-error">
+        <%=error%>
+    </div>
+<%}%> 

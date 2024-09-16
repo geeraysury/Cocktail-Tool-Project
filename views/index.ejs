@@ -157,102 +157,18 @@
 
         <hr>
 
-        
-
         <div class="response-area">
             <!--COCKTAIL RESULT-->
             <% if(error) { %>
                 <h2><No result found></h2>
             <% } else if (drinkName) { %>
-                <h2 class="title">
-                    <%=drinkName %>
-                </h2>
-                <!--HANDLE IMG ERROR (IF DRINK NOT FOUND)!!!!!!-->
-                <% if (image) { %> <!-- Check if image exists -->
-                    <img src="<%= image %>/preview" class="image" alt="Image of <%= drinkName %>">
-                <% } %> 
-                
-                <h3>Ingredients:</h3>
-                <ul class="ingredients">
-                    <% for(var i=0; i < ingredients.length; i++){ %>
-                        <li>
-                            <%= ingredients[i].measure %>  <%= ingredients[i].ingredient %>
-                        </li>
-                    <%}%>
-                </ul>
-                <h3 class="instructions">
-                    Instructions:
-                </h3>
-                <ol>
-                    <% for(var i = 0; i < instructionsSteps.length; i++) { %>
-                        <li><%= instructionsSteps[i].trim() %>.</li> <!-- Trim any excess space and add a period -->
-                    <% } %>
-                </ol>
-                
-
-                <%if (locals.error) {%>
-                    <div id="tag-error" class="tag-error">
-                        <%=error%>
-                    </div>
-                <%}%> 
+                <%- include ('./cocktail', {drinkName: drinkName}) %>
             <% } else if (alcName) { %>
-                <!--ALCOHOL RESULT-->
-                <h2 class="title">
-                    <%= ingredient %> 
-                </h2>
-                <% const imgURL = 'https://www.thecocktaildb.com/images/ingredients/' + ingredient.toLowerCase() + '-Medium.png' %>
-                <img src= "<%= imgURL %>" alt="Alcohol Image" class="image">
-                <p>Description: <%- description.replace(/\r\n|\n/g, '<br>') %></p>
-
-                <% if (locals.error) { %>
-                    <div id="tag-error" class="tag-error">
-                        <%= error %>
-                    </div>
-                <% } %>
+                <%- include ('./alcohol', {alcName: alcName}) %>
                 <!--list all the cocktails with the first letter-->
             <% } else if (firstLetter) { %>
-                <% if (drinks && drinks.length > 0) { %>
-                    <ul class="ingredients">
-                        <%drinks.forEach(function(drink) {%>
-                            <li>
-                                <h2><%= drink.strDrink %></h2>
-                                <!--HANDLE IMG ERROR (IF DRINK NOT FOUND)!!!!!!-->
-                                <img src="<%= drink.strDrinkThumb %>/preview" alt="<%= drink.strDrink %> image" />
-                                <h3>Ingredients:</h3>
-                                <ul>
-                                    <% for (let i = 1; i <= 15; i++) { %>
-                                        <% if (drink['strIngredient' + i]) { %>
-                                            <li>
-                                                <%= drink['strMeasure' + i] ? drink['strMeasure' + i] + ' ' : '' %> 
-                                                <%= drink['strIngredient' + i] %>
-                                            </li>
-                                        <% } %>
-                                    <% } %>
-                                </ul>
-
-                                <h3 class="instructions">
-                                    Instructions:
-                                </h3>
-                                <%const steps = drink.strInstructions.split('.'); %>
-                                <%steps.forEach(function(step, index) { %>
-                                    <%if (step.trim()) { %> 
-                                        <p>
-                                            <%= (index + 1) + '. ' + step.trim() %> <!-- Display step number and instruction -->
-                                        </p> 
-                                    <%}%>
-                                <%})%>
-                            </li>
-                            <hr>
-                        <%});%>
-                    </ul>
-                <%}%>
-                <% if (locals.error) { %>
-                    <div id="tag-error" class="tag-error">
-                        <%= error %>
-                    </div>
-                <% } %>
+                <%- include ('./firstletter', {firstLetter: firstLetter}) %>
             <%}%>
-
             <!--FOR FILTER, PAKE ARRAY.FILTER METHOD, MATCH ID IN ARRAY WITH QUERY ID-->
         </div>     
     </div>

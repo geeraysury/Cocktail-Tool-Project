@@ -1,0 +1,13 @@
+<!--ALCOHOL RESULT-->
+<h2 class="title">
+    <%= ingredient %> 
+</h2>
+<% const imgURL = 'https://www.thecocktaildb.com/images/ingredients/' + ingredient.toLowerCase() + '-Medium.png' %>
+<img src= "<%= imgURL %>" alt="Alcohol Image" class="image">
+<p>Description: <%- description.replace(/\r\n|\n/g, '<br>') %></p>
+
+<% if (locals.error) { %>
+    <div id="tag-error" class="tag-error">
+        <%= error %>
+    </div>
+<% } %>

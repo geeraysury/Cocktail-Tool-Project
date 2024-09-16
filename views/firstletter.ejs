@@ -1,0 +1,40 @@
+<% if (drinks && drinks.length > 0) { %>
+    <ul class="ingredients">
+        <%drinks.forEach(function(drink) {%>
+            <li>
+                <h2><%= drink.strDrink %></h2>
+                <!--HANDLE IMG ERROR (IF DRINK NOT FOUND)!!!!!!-->
+                <img src="<%= drink.strDrinkThumb %>/preview" alt="<%= drink.strDrink %> image" />
+                <h3>Ingredients:</h3>
+                <ul>
+                    <% for (let i = 1; i <= 15; i++) { %>
+                        <% if (drink['strIngredient' + i]) { %>
+                            <li>
+                                <%= drink['strMeasure' + i] ? drink['strMeasure' + i] + ' ' : '' %> 
+                                <%= drink['strIngredient' + i] %>
+                            </li>
+                        <% } %>
+                    <% } %>
+                </ul>
+
+                <h3 class="instructions">
+                    Instructions:
+                </h3>
+                <%const steps = drink.strInstructions.split('.'); %>
+                <%steps.forEach(function(step, index) { %>
+                    <%if (step.trim()) { %> 
+                        <p>
+                            <%= (index + 1) + '. ' + step.trim() %> <!-- Display step number and instruction -->
+                        </p> 
+                    <%}%>
+                <%})%>
+            </li>
+            <hr>
+        <%});%>
+    </ul>
+<%}%>
+<% if (locals.error) { %>
+    <div id="tag-error" class="tag-error">
+        <%= error %>
+    </div>
+<% } %>

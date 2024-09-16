@@ -26,9 +26,18 @@ if (filterGlassData.data.drinks) {
     filterGlass = filterGlassData.data.drinks;
 }
 
-// if ()
 
-// masukin semua filter di array
+const extractIngredients = (cocktail) => {
+    const ingredients = [];
+    for (let i = 1; i <= 15; i++) {
+        const ingredient = cocktail[`strIngredient${i}`];
+        const measure = cocktail[`strMeasure${i}`];
+        if (ingredient && measure) {
+            ingredients.push({ ingredient, measure });
+        }
+    }
+    return ingredients;
+};
 
 app.get("/", async (req, res) => {
     res.render("index.ejs", { 
@@ -62,30 +71,20 @@ app.post("/search-cocktail" ,async (req, res) => {
             });
         }
         const cocktail = result.data.drinks[0];
-        const ingredients = [];
-        const instructions = cocktail.strInstructions;
-        const instructionsSteps = instructions.split('.').filter(step => step.trim() !== "");
+        const ingredients = extractIngredients(cocktail);
+        const instructionsSteps = cocktail.strInstructions.split('.').filter(step => step.trim() !== "");
 
-        for (let i = 1; i <= 15; i++) {
-            const ingredientList = cocktail[`strIngredient${i}`];
-            const measureList = cocktail[`strMeasure${i}`];
-            if (ingredientList != null && measureList != null){
-                ingredients.push({
-                    ingredient: ingredientList,
-                    measure: measureList,
-                });
-            }
-        }
         
         return res.render("index.ejs", { 
             drinkName: cocktail.strDrink, 
-            ingredients: ingredients , //AN ARRAY, FOR LOOP IT WHEN CREATING <LI> IN EJS
+            ingredients: ingredients,
             instructionsSteps: instructionsSteps,
             image: cocktail.strDrinkThumb || null,
-            error: null,
+            // HOW TO NOT TYPE THESE IN EVERY RES.RENDER
             filterCategory: filterCategory,
             filterAlcohol: filterAlcohol,
             filterGlass: filterGlass,
+            error: null,
         });
     }
     catch (error){
@@ -144,14 +143,13 @@ app.post("/search-alcohol" ,async (req, res) => {
     }
 });
 
-// random cocktail
+// random cocktail button
 app.post("/random-cocktail" ,async (req, res) => { 
     try{
         const result = await axios.get(`${API_URL}/random.php`);
         const cocktail = result.data.drinks[0];
-        const ingredients = [];
-        const instructions = cocktail.strInstructions;
-        const instructionsSteps = instructions.split('.').filter(step => step.trim() !== "");
+        const ingredients = extractIngredients(cocktail);
+        const instructionsSteps = cocktail.strInstructions.split('.').filter(step => step.trim() !== "");
 
         for (let i = 1; i <= 15; i++) {
             const ingredientList = cocktail[`strIngredient${i}`];
