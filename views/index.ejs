@@ -160,7 +160,7 @@
         <div class="response-area">
             <!--COCKTAIL RESULT-->
             <% if(error) { %>
-                <h2><No result found></h2>
+                <h2><%= error %></h2>
             <% } else if (drinkName) { %>
                 <%- include ('./cocktail', {drinkName: drinkName}) %>
             <% } else if (alcName) { %>

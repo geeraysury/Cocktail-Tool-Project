@@ -39,18 +39,28 @@ const extractIngredients = (cocktail) => {
     return ingredients;
 };
 
-app.get("/", async (req, res) => {
-    res.render("index.ejs", { 
-        drinkName: 'Waiting for an Input....',
-        alcName: '',
-        ingredients: '',
+// Helper function to render the page with default values
+const renderPage = (res, data = {}) => {
+    const defaultData = {
         filterCategory: filterCategory,
         filterAlcohol: filterAlcohol,
         filterGlass: filterGlass,
-        instructionsSteps: '',
-        image: null,
         error: null,
-    });
+        drinkName: null,
+        ingredients: [],
+        instructionsSteps: [],
+        image: null,
+        alcName: null,
+        description: null,
+        drinks: [],
+        firstLetter: null,
+    };
+    res.render("index.ejs", { ...defaultData, ...data });
+};
+
+
+app.get("/", async (req, res) => {
+    renderPage(res, {drinkName: "Waiting for an Input..."});
 });
 // SEARCH KEYWORD: best practice to refactor (so not repetitive, easier structure) code and restructure code into different ejs files for reusability
 // BIAR EFFICIENT DAN GAUSAH ERROR AND NULL NULL
@@ -63,28 +73,17 @@ app.post("/search-cocktail" ,async (req, res) => {
         const cocktailName = req.body.cocktailName; //from user input
         const result = await axios.get(`${API_URL}/search.php?s=${cocktailName}`);
         if (!result.data.drinks) {
-            return res.render("index.ejs", { 
-                error: "No cocktails found for this name!",
-                filterCategory: filterCategory,
-                filterAlcohol: filterAlcohol,
-                filterGlass: filterGlass,
-            });
+            return renderPage(res, { error: "No cocktails found for this name"});
         }
         const cocktail = result.data.drinks[0];
         const ingredients = extractIngredients(cocktail);
         const instructionsSteps = cocktail.strInstructions.split('.').filter(step => step.trim() !== "");
 
-        
-        return res.render("index.ejs", { 
+        renderPage(res, {
             drinkName: cocktail.strDrink, 
             ingredients: ingredients,
             instructionsSteps: instructionsSteps,
             image: cocktail.strDrinkThumb || null,
-            // HOW TO NOT TYPE THESE IN EVERY RES.RENDER
-            filterCategory: filterCategory,
-            filterAlcohol: filterAlcohol,
-            filterGlass: filterGlass,
-            error: null,
         });
     }
     catch (error){
@@ -100,45 +99,20 @@ app.post("/search-alcohol" ,async (req, res) => {
         const alcoholName = req.body.alcName;
         const result = await axios.get(`${API_URL}/search.php?i=${alcoholName}`);
         if (!result.data.ingredients) {
-            return res.render("index.ejs", { 
-                error: "No alcohol found for this name!",
-                filterCategory: filterCategory,
-                filterAlcohol: filterAlcohol,
-                filterGlass: filterGlass,
-            });
+            return renderPage(res, {error: "No alcohol found for this name"});
         }
        
         const alcohol = result.data.ingredients[0];
-        if (alcohol != null){
-            return res.render("index.ejs", { 
-                drinkName: null,
-                alcName: alcoholName,
-                ingredient: alcohol.strIngredient ? alcohol.strIngredient : '', 
-                description: alcohol.strDescription ? alcohol.strDescription : 'no  description found', 
-                error: null,
-                filterCategory: filterCategory,
-                filterAlcohol: filterAlcohol,
-                filterGlass: filterGlass,
+        
+        renderPage(res, {
+            alcName: alcoholName,
+            ingredient: alcohol.strIngredient ? alcohol.strIngredient : '', 
+            description: alcohol.strDescription ? alcohol.strDescription : 'no description found', 
+        });
 
-    
-                // data: alcohol,
-                // error: null,
-                // drinkName:null,
-                // alcName: null,
-            });
-        }
-        else{
-            return res.render("index.ejs", { 
-                error: "No alcohol found for this name!",
-                filterCategory: filterCategory,
-                filterAlcohol: filterAlcohol,
-                filterGlass: filterGlass,
-            });
-        }
     }
     catch (error){
         console.error(error);
-        console.log("ERRRORRR");
         res.status(500).send('Error retrieving alcohol data');
     }
 });
@@ -150,27 +124,13 @@ app.post("/random-cocktail" ,async (req, res) => {
         const cocktail = result.data.drinks[0];
         const ingredients = extractIngredients(cocktail);
         const instructionsSteps = cocktail.strInstructions.split('.').filter(step => step.trim() !== "");
-
-        for (let i = 1; i <= 15; i++) {
-            const ingredientList = cocktail[`strIngredient${i}`];
-            const measureList = cocktail[`strMeasure${i}`];
-            if (ingredientList != null && measureList != null){
-                ingredients.push({
-                    ingredient: ingredientList,
-                    measure: measureList,
-                });
-            }
-        }
         
-        return res.render("index.ejs", { 
+
+        renderPage(res, {
             drinkName: cocktail.strDrink, 
-            ingredients: ingredients , //AN ARRAY, FOR LOOP IT WHEN CREATING <LI> IN EJS
+            ingredients: ingredients,
             instructionsSteps: instructionsSteps,
             image: cocktail.strDrinkThumb || null,
-            error: null,
-            filterCategory: filterCategory,
-            filterAlcohol: filterAlcohol,
-            filterGlass: filterGlass,
         });
     }
     catch (error){
@@ -183,17 +143,11 @@ app.post("/first-letter-cocktail" ,async (req, res) => {
     try{
         const firstLetter = req.body.firstLetterInput;
         const result = await axios.get(`${API_URL}/search.php?f=${firstLetter}`);
+
         if (!result.data.drinks) {
-            return res.render("index.ejs", { 
-                drinks: [], 
-                error: "No drinks found for this letter!",
-                filterCategory: filterCategory,
-                filterAlcohol: filterAlcohol,
-                filterGlass: filterGlass,
-            });
+            return renderPage(res, {error: "No drinks found for this letter"});
         }
         let drinks = result.data.drinks;
-
         let alcoholLevel = req.body.alcLevel;
         let drinkCategory = req.body.category;
         const sortOrder = req.body.sortOrder;
@@ -246,19 +200,10 @@ app.post("/first-letter-cocktail" ,async (req, res) => {
             drinks.sort((a, b) => countIngredients(b) - countIngredients(a));
         }
 
-        //make each keys to an array element
-        //use .filter method to only get str drink, put to str drink array
-
-        return res.render("index.ejs", { 
+        renderPage(res, {
             drinks: drinks,
-            error: null,
-            drinkName: null,
             firstLetter: firstLetter,
-            alcName: null,
-            filterCategory: filterCategory,
-            filterAlcohol: filterAlcohol,
-            filterGlass: filterGlass,
-        });
+        })
     }
     catch (error) {
         console.error(error);
