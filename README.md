@@ -21,9 +21,11 @@ Users can also sort the results by the number of ingredients or instructions, or
 4. Once a search is completed, the app dynamically renders the results on the page, using EJS to handle the presentation logic.
 
 How to Run the Project:
-1. To start server, use this code:
+1. To install npm, use this code at the terminal in the project directory:
+npm i 
+2. To start server, use this code:
 node index.js
-2. Search on your browser:
+3. Search on your browser:
 http://localhost:3000
 
 How to Use the Website:
