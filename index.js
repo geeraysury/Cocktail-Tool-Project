@@ -8,24 +8,14 @@ const API_URL = "https://www.thecocktaildb.com/api/json/v1/1";
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
-let filterCategoryData = await axios.post(`${API_URL}/list.php?c=list`);
-let filterCategory = null;
-if (filterCategoryData.data.drinks) {
-    filterCategory = filterCategoryData.data.drinks;
-}
+const fetchFilterData = async (endpoint) => {
+    const response = await axios.post(`${API_URL}/${endpoint}`);
+    return response.data.drinks || null;
+};
 
-let filterAlcoholData = await axios.post(`${API_URL}/list.php?a=list`);
-let filterAlcohol = null;
-if (filterAlcoholData.data.drinks) {
-    filterAlcohol = filterAlcoholData.data.drinks;
-}
-
-let filterGlassData = await axios.post(`${API_URL}/list.php?g=list`);
-let filterGlass = null;
-if (filterGlassData.data.drinks) {
-    filterGlass = filterGlassData.data.drinks;
-}
-
+const filterCategory = await fetchFilterData("list.php?c=list");
+const filterAlcohol = await fetchFilterData("list.php?a=list");
+const filterGlass = await fetchFilterData("list.php?g=list");
 
 const extractIngredients = (cocktail) => {
     const ingredients = [];
@@ -57,65 +47,120 @@ const renderPage = (res, data = {}) => {
     };
     res.render("index.ejs", { ...defaultData, ...data });
 };
+const fetchCocktailMiddleware = async (req, res, next) => {
+    try {
+        const { endpoint, errorMessage, responseKey } = req.fetchOptions;
 
+        const result = await axios.get(`${API_URL}/${endpoint}`);
+
+        // Check if the required responseKey exists and has data
+        if (!result.data[responseKey] || result.data[responseKey].length === 0) {
+            return renderPage(res, { error: errorMessage });
+        }
+        req.fetchedData = result.data[responseKey];
+        next();
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error retrieving cocktail data");
+    }
+};
+
+const sortDrinks = (drinks, keyExtractor, order = "ascending") => {
+    return drinks.sort((a, b) => {
+        const keyA = keyExtractor(a);
+        const keyB = keyExtractor(b);
+
+        if (order === "ascending") {
+            return keyA > keyB ? 1 : keyA < keyB ? -1 : 0;
+        } else if (order === "descending") {
+            return keyA < keyB ? 1 : keyA > keyB ? -1 : 0;
+        }
+        return 0; // No sorting for invalid order
+    });
+};
+
+const filterDrinks = (drinks, alcoholLevel, category) => {
+    if (alcoholLevel) {
+        drinks = drinks.filter((drink) => drink.strAlcoholic === alcoholLevel);
+    }
+    if (category) {
+        drinks = drinks.filter((drink) => drink.strCategory === category);
+    }
+    return drinks;
+};
+
+const countIngredients = (drink) => {
+    let count = 0;
+    for (let key in drink) {
+        if (key.includes('strIngredient') && drink[key]) {
+            count++;
+        }
+    }
+    return count;
+};
+
+const countInstructionSteps = (instructions) => {
+    if (!instructions) return 0;
+    return instructions.split('.').filter((step) => step.trim() !== "").length;
+};
 
 app.get("/", async (req, res) => {
     renderPage(res, {drinkName: "Waiting for an Input..."});
 });
-// SEARCH KEYWORD: best practice to refactor (so not repetitive, easier structure) code and restructure code into different ejs files for reusability
-// BIAR EFFICIENT DAN GAUSAH ERROR AND NULL NULL
-// pisah input semua di beda2 ejs (error, cocktail, alcohol)
-// res.render (each ejs file)
 
 // search cocktail by name
-app.post("/search-cocktail" ,async (req, res) => { 
-    try{
-        const cocktailName = req.body.cocktailName; //from user input
-        const result = await axios.get(`${API_URL}/search.php?s=${cocktailName}`);
-        if (!result.data.drinks) {
-            return renderPage(res, { error: "No cocktails found for this name"});
-        }
-        const cocktail = result.data.drinks[0];
+app.post("/search-cocktail",
+    (req, res, next) => {
+        req.fetchOptions = {
+            endpoint: `search.php?s=${req.body.cocktailName}`,
+            errorMessage: "No cocktails found for this name",
+            responseKey: "drinks",
+        };
+        next();
+    },
+    fetchCocktailMiddleware,
+    (req, res) => {
+        const cocktail = req.fetchedData[0];
         const ingredients = extractIngredients(cocktail);
         const instructionsSteps = cocktail.strInstructions.split('.').filter(step => step.trim() !== "");
-
         renderPage(res, {
-            drinkName: cocktail.strDrink, 
+            drinkName: cocktail.strDrink,
             ingredients: ingredients,
             instructionsSteps: instructionsSteps,
             image: cocktail.strDrinkThumb || null,
         });
     }
-    catch (error){
-        console.error(error);
-        res.status(500).send('Error retrieving cocktail data');
-    }
-});
+);
 
-// search alcohol name
-// add key values so user can input id,and list all the cocktails by the alcName
-app.post("/search-alcohol" ,async (req, res) => { 
-    try{
-        const alcoholName = req.body.alcName;
-        const result = await axios.get(`${API_URL}/search.php?i=${alcoholName}`);
-        if (!result.data.ingredients) {
-            return renderPage(res, {error: "No alcohol found for this name"});
+app.post( "/search-alcohol",
+    (req, res, next) => {
+        req.fetchOptions = {
+            endpoint: `search.php?i=${req.body.alcName}`,
+            errorMessage: "No alcohol found for this name",
+            responseKey: "ingredients",
+        };
+        next();
+    },
+    fetchCocktailMiddleware,
+    (req, res) => {
+        const alcohol = req.fetchedData[0];
+
+        if (!alcohol || !alcohol.strIngredient) {
+            // Render error message if no valid alcohol data is retrieved
+            return renderPage(res, { error: "No alcohol found for this name" });
         }
-       
-        const alcohol = result.data.ingredients[0];
-        
-        renderPage(res, {
-            alcName: alcoholName,
-            ingredient: alcohol.strIngredient ? alcohol.strIngredient : '', 
-            description: alcohol.strDescription ? alcohol.strDescription : 'no description found', 
-        });
 
+        // Render the page with alcohol data
+        renderPage(res, {
+            alcName: req.body.alcName,
+            ingredient: alcohol.strIngredient || "Unknown",
+            description: alcohol.strDescription || "No description available.",
+            type: alcohol.strType || "Unknown type",
+            isAlcoholic: alcohol.strAlcohol || "Unknown",
+            abv: alcohol.strABV || "Unknown ABV",
+        });
     }
-    catch (error){
-        console.error(error);
-        res.status(500).send('Error retrieving alcohol data');
-    }
-});
+);
 
 // random cocktail button
 app.post("/random-cocktail" ,async (req, res) => { 
@@ -152,63 +197,53 @@ app.post("/first-letter-cocktail" ,async (req, res) => {
         let drinkCategory = req.body.category;
         const sortOrder = req.body.sortOrder;
 
-        // to count ingredients in each drink
-        const countIngredients = (drink) => {
-            let count = 0;
-            for (let key in drink) {
-                if (key.includes('strIngredient') && drink[key] !== null && drink[key] !== "") {
-                    count++;
-                }
-            }
-            return count;
-        };
+        // Filter drinks by alcohol level and category
+        drinks = filterDrinks(drinks, alcoholLevel, drinkCategory);
 
-        // function to count instructions in each drink
-        const countInstructionSteps = (instructions) => {
-            const steps = instructions.split('.').filter(step => step.trim() !== "");
-            return steps.length;
-        };
-      
-        // Sort drinks by number of instruction steps
-        drinks.sort((a, b) => {
-            const stepsA = countInstructionSteps(a.strInstructions);
-            const stepsB = countInstructionSteps(b.strInstructions);
-        
-            // Apply both ascending and descending order logic
-            if (sortOrder === "instructions-ascending") {
-                return stepsA - stepsB;
-            } else if (sortOrder === "instructions-descending") {
-                return stepsB - stepsA;
-            } else {
-                return 0; 
-            }
-        });
-        if (alcoholLevel){ 
-            drinks = drinks.filter((drink) => drink.strAlcoholic === alcoholLevel);
-        }
-        if (drinkCategory){
-            drinks = drinks.filter((drink) => drink.strCategory === drinkCategory);
-        }
-
-        if (sortOrder === "name-ascending") {
-            drinks.sort((a, b) => a.strDrink.localeCompare(b.strDrink)); 
-        } else if (sortOrder === "name-descending") {
-            drinks.sort((a, b) => b.strDrink.localeCompare(a.strDrink)); 
-        } else if (sortOrder === "ingredients-ascending"){
-            drinks.sort((a, b) => countIngredients(a) - countIngredients(b));
-        } else if (sortOrder === "ingredients-descending"){
-            drinks.sort((a, b) => countIngredients(b) - countIngredients(a));
+        // Sort drinks based on the provided order and criteria
+        switch (sortOrder) {
+            case "instructions-ascending":
+            case "instructions-descending":
+                drinks = sortDrinks(
+                    drinks,
+                    (drink) => countInstructionSteps(drink.strInstructions),
+                    sortOrder.split("-")[1]
+                );
+                break;
+            case "name-ascending":
+            case "name-descending":
+                drinks = sortDrinks(
+                    drinks,
+                    (drink) => drink.strDrink,
+                    sortOrder.split("-")[1]
+                );
+                break;
+            case "ingredients-ascending":
+            case "ingredients-descending":
+                drinks = sortDrinks(
+                    drinks,
+                    (drink) => countIngredients(drink),
+                    sortOrder.split("-")[1]
+                );
+                break;
+            default:
+                break;
         }
 
         renderPage(res, {
             drinks: drinks,
             firstLetter: firstLetter,
-        })
-    }
-    catch (error) {
+        });
+    } catch (error) {
         console.error(error);
-        res.status(500).send('Error retrieving drinks data');
+        res.status(500).send("Error retrieving drinks data");
     }
+});
+
+// Error Handling
+app.use((err, req, res, next) => {
+    console.error(err.message);
+    res.status(500).send("An internal server error occurred");
 });
 
 app.listen(port, () => {
