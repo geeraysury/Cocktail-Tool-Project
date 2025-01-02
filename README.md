@@ -6,15 +6,21 @@ The goal of this project is to create a user-friendly interface where users can:
 * Search alcohol types and view descriptions.
 * Get a random cocktail recipe.
 * Filter and sort cocktails.
+* Sign up and log in securely using SQL for user authentication.
 
-Algorithm Overview:
-1. The app fetches available categories, alcohol types, and glass types from TheCocktailDB API during startup.
-This data is then used to create filters that users can apply to their search results.
-2. Users can submit a search query via the web interface, which sends a request to the respective API endpoint.
-If searching by cocktail name, the app fetches detailed information (ingredients, instructions, and image) and displays it.
-3. When searching by first letter, users can apply filters like alcohol content or glass type.
-Users can also sort the results by the number of ingredients or instructions, or alphabetically by name.
-4. Once a search is completed, the app dynamically renders the results on the page, using EJS to handle the presentation logic.
+Features:
+* Search Cocktails: Users can search for cocktails by name or first letter and receive detailed recipes.
+* Random Selection: Users can randomize their cocktail search for surprise results.
+* Filtering and Sorting: Users can filter results by alcohol content, category, or glass type and sort them alphabetically or by ingredients/instructions.
+* User Authentication: Users can sign up and log in securely using their credentials, which are stored in a PostgreSQL database.
+* Direct to Homepage: After logging in, users are redirected to the homepage where they can begin their searches.
+
+Agorithm Overview:
+1.  Users can submit a search query via the web interface, which sends a request to the respective API endpoint. If searching by cocktail name, the app fetches detailed information (ingredients, instructions, and image) and displays it.
+2. When searching by first letter, users can apply filters like alcohol content or glass type. Users can also sort the results by the number of ingredients or instructions, or alphabetically by name.
+3. SQL-based user authentication allows users to securely sign up and log in, with their credentials stored in a PostgreSQL database.
+4. Once logged in, users are directed to the homepage, where they can explore the cocktail dictionary and utilize all available features.
+5. The app dynamically renders results on the page, using EJS to handle the presentation logic.
 
 How to Run the Project:
 1. To install npm, use this code at the terminal in the project directory:
@@ -26,7 +32,7 @@ http://localhost:3000
 
 How to Use the Website:
 1. Sign up using any username and password you would like
-2. Log in using the username and password you inputted, and you will be directed to the homepage
+2. Log in using the username and password you inputted, and you will be redirected to the homepage
 3. Input values based on the input title on the boxes, or click the "Random Cocktail" button to get a random cocktail recipe.
-4. You can combine the different filters, and add the sort together with the filter(s), for the first letter input.
+4. When searching by the first letter, combine different filters (alcohol content, category, glass type) and sorting options for tailored results.
 
