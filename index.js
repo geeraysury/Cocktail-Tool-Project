@@ -1,12 +1,47 @@
 import express from "express";
 import axios from "axios";
 import bodyParser from "body-parser";
+import session from "express-session";
+import bcrypt from "bcryptjs";
+import pkg from "pg";
+import path from "path";
+import { fileURLToPath } from "url";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const { Pool } = pkg;
 const app = express();
 const port = 3000;
 const API_URL = "https://www.thecocktaildb.com/api/json/v1/1";
 
+app.use(express.static(path.resolve(__dirname, "public")));
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// Middleware for sessions
+app.use(
+    session({
+        secret: "your_secret_key",
+        resave: false,
+        saveUninitialized: true,
+    })
+);
+
+// Middleware to restrict access to authenticated users
+const restrict = (req, res, next) => {
+    if (req.session.user) {
+        next();
+    } else {
+        res.redirect("/login");
+    }
+};
+
+const db = new Pool({
+    host: "localhost",
+    user: "postgres",
+    password: "iLoveGyubee",
+    database: "cocktail_api_project",
+    port: 5432,
+});
+db.connect();
 
 const fetchFilterData = async (endpoint) => {
     const response = await axios.post(`${API_URL}/${endpoint}`);
@@ -104,8 +139,8 @@ const countInstructionSteps = (instructions) => {
     return instructions.split('.').filter((step) => step.trim() !== "").length;
 };
 
-app.get("/", async (req, res) => {
-    renderPage(res, {drinkName: "Waiting for an Input..."});
+app.get("/", restrict, async (req, res) => {
+    renderPage(res, {});
 });
 
 // search cocktail by name
@@ -248,4 +283,68 @@ app.use((err, req, res, next) => {
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
-  });
+});
+
+// Signup route
+app.post("/signup", async (req, res) => {
+    const { username, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    db.query(
+        "INSERT INTO users (username, password) VALUES ($1, $2)",
+        [username, hashedPassword],
+        (err) => {
+            if (err) {
+                return res.status(500).send("Signup failed. Username might already exist.");
+            }
+            res.redirect("/login");
+        }
+    );
+});
+
+app.post("/login", async (req, res) => {
+    const { username, password } = req.body;
+
+    try {
+        // Fetch the user from the database
+        const results = await db.query("SELECT * FROM public.users WHERE username = $1", [username]);
+
+        // Check if user exists
+        if (results.rows.length === 0) {
+            return res.status(401).send("Invalid username or password");
+        }
+
+        const user = results.rows[0];
+
+        // Compare passwords
+        const isMatch = await bcrypt.compare(password, user.password);
+
+        if (!isMatch) {
+            // Password does not match
+            return res.status(401).send("Invalid username or password");
+        }
+
+        // Successful login, set session
+        req.session.user = { id: user.id, username: user.username };
+        res.redirect("/");
+    } catch (err) {
+        console.error("Error during login:", err);
+        res.status(500).send("An unexpected error occurred.");
+    }
+});
+
+// Logout route
+app.get("/logout", (req, res) => {
+    req.session.destroy(() => {
+        res.redirect("/login");
+    });
+});
+
+// Add routes for login and signup pages
+app.get("/login", (req, res) => {
+    res.render("login.ejs");
+});
+
+app.get("/signup", (req, res) => {
+    res.render("signup.ejs");
+});
