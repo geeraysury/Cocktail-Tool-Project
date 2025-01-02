@@ -15,7 +15,7 @@ Features:
 * User Authentication: Users can sign up and log in securely using their credentials, which are stored in a PostgreSQL database.
 * Direct to Homepage: After logging in, users are redirected to the homepage where they can begin their searches.
 
-Agorithm Overview:
+Algorithm Overview:
 1.  Users can submit a search query via the web interface, which sends a request to the respective API endpoint. If searching by cocktail name, the app fetches detailed information (ingredients, instructions, and image) and displays it.
 2. When searching by first letter, users can apply filters like alcohol content or glass type. Users can also sort the results by the number of ingredients or instructions, or alphabetically by name.
 3. SQL-based user authentication allows users to securely sign up and log in, with their credentials stored in a PostgreSQL database.
