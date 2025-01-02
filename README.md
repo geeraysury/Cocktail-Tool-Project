@@ -1,7 +1,3 @@
-TO DO, NOT YET IMPLEMENTED:
-- before accessing the website, users have to login using their username and password
-- if users do not have an account, they are able to register by their username and password
-
 This project is a web-based cocktail dictionary website built with Node.js, Express, and Axios. Users can search for cocktails by name, alcohol type, first letter, or even randomize their selection. The website fetches data from TheCocktailDB API and allows users to view detailed information about cocktails, including ingredients, preparation instructions, and more.
 
 Objective:
@@ -29,6 +25,8 @@ node index.js
 http://localhost:3000
 
 How to Use the Website:
-Input values based on the input title on the boxes, or click the "Random Cocktail" button to get a random cocktail recipe.
-You can combine the different filters, and add the sort together with the filter(s), for the first letter input.
+1. Sign up using any username and password you would like
+2. Log in using the username and password you inputted, and you will be directed to the homepage
+3. Input values based on the input title on the boxes, or click the "Random Cocktail" button to get a random cocktail recipe.
+4. You can combine the different filters, and add the sort together with the filter(s), for the first letter input.
 
