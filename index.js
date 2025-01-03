@@ -288,6 +288,17 @@ app.listen(port, () => {
 // Signup route
 app.post("/signup", async (req, res) => {
     const { username, password } = req.body;
+
+    const lengthReq = password.length >= 8;
+    const uppercaseReq = /[A-Z]/.test(password);
+    const lowercaseReq = /[a-z]/.test(password);
+    const numberReq = /[0-9]/.test(password);
+    const specialReq = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    if (!(lengthReq && uppercaseReq && lowercaseReq && numberReq && specialReq)) {
+        return res.render("signup.ejs", {error: "Password does not meet all requirements."});
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     db.query(
@@ -333,6 +344,19 @@ app.post("/login", async (req, res) => {
     }
 });
 
+app.post("/delete-account", restrict, async (req, res) => {
+    try {
+        const userId = req.session.user.id;
+        await db.query("DELETE FROM users WHERE id = $1", [userId]);
+        req.session.destroy(() => {
+            res.redirect("/signup");
+        });
+    } catch (err) {
+        console.error("Error deleting account:", err);
+        res.status(500).send("An unexpected error occurred.");
+    }
+});
+
 // Logout route
 app.get("/logout", (req, res) => {
     req.session.destroy(() => {
@@ -346,5 +370,5 @@ app.get("/login", (req, res) => {
 });
 
 app.get("/signup", (req, res) => {
-    res.render("signup.ejs");
+    res.render("signup.ejs", { error: null });
 });

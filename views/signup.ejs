@@ -2,20 +2,48 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <h1>The Cocktail Dictionary</h1>
     <title>Signup</title>
-    <link rel="stylesheet" href="/public/css/styles.css">
+    <link rel="stylesheet" href="/css/styles.css" />
+    <script src="/signup.js" defer></script>
 </head>
 <body class="signup-page">
-    <h1>Sign Up</h1>
-    <form action="/signup" method="POST">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required>
-        <br>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-        <br>
-        <button type="submit">Sign Up</button>
-    </form>
-    <p>Already have an account? <a href="/login">Log in here</a>.</p>
+    <div class = "container">
+        <h1>Sign Up</h1>
+        <% if (error) { %>
+            <p class="error-message"><%= error %></p>
+        <% } %>
+        <form id="signupForm" action="/signup" method="POST">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            <br>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            <div id="requirements">
+                <p id="length" class="requirement">
+                    <span class="checkmark"></span> At least 8 characters
+                </p>
+                <p id="uppercase" class="requirement">
+                    <span class="checkmark"></span> At least one uppercase letter
+                </p>
+                <p id="lowercase" class="requirement">
+                    <span class="checkmark"></span> At least one lowercase letter
+                </p>
+                <p id="number" class="requirement">
+                    <span class="checkmark"></span> At least one number
+                </p>
+                <p id="special" class="requirement">
+                    <span class="checkmark"></span> At least one special character
+                </p>
+            </div>
+            <div id="strengthBarContainer">
+                <div id="strengthBar"></div>
+            </div>
+            <p id="strengthText" style="margin-top: 5px; font-weight: bold;">Enter a password to check strength</p>
+            <br>
+            <button type="submit" id="signupButton" disabled>Sign Up</button>
+        </form>
+        <p>Already have an account? <a href="/login">Log in here</a>.</p>
+    </div>
 </body>
 </html>
