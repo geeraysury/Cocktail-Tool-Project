@@ -6,15 +6,18 @@ import bcrypt from "bcryptjs";
 import pkg from "pg";
 import path from "path";
 import { fileURLToPath } from "url";
+import multer from "multer";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const { Pool } = pkg;
 const app = express();
 const port = 3000;
 const API_URL = "https://www.thecocktaildb.com/api/json/v1/1";
+const upload = multer();
 
 app.use(express.static(path.resolve(__dirname, "public")));
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 // Middleware for sessions
 app.use(
@@ -82,12 +85,12 @@ const renderPage = (res, data = {}) => {
     };
     res.render("index.ejs", { ...defaultData, ...data });
 };
+
 const fetchCocktailMiddleware = async (req, res, next) => {
     try {
         const { endpoint, errorMessage, responseKey } = req.fetchOptions;
 
         const result = await axios.get(`${API_URL}/${endpoint}`);
-
         // Check if the required responseKey exists and has data
         if (!result.data[responseKey] || result.data[responseKey].length === 0) {
             return renderPage(res, { error: errorMessage });
@@ -146,6 +149,11 @@ app.get("/", restrict, async (req, res) => {
 // search cocktail by name
 app.post("/search-cocktail",
     (req, res, next) => {
+    const cocktailName = req.body.cocktailName;
+
+    if (!cocktailName || cocktailName.trim().length < 2) {
+        return renderPage(res, { error: "Please enter a valid input." });
+    }
         req.fetchOptions = {
             endpoint: `search.php?s=${req.body.cocktailName}`,
             errorMessage: "No cocktails found for this name",
@@ -169,6 +177,11 @@ app.post("/search-cocktail",
 
 app.post( "/search-alcohol",
     (req, res, next) => {
+        const alcName = req.body.alcName;
+
+        if (!alcName || alcName.trim().length < 2) {
+            return renderPage(res, { error: "Please enter a valid input" });
+        }
         req.fetchOptions = {
             endpoint: `search.php?i=${req.body.alcName}`,
             errorMessage: "No alcohol found for this name",
@@ -222,6 +235,11 @@ app.post("/random-cocktail" ,async (req, res) => {
 app.post("/first-letter-cocktail" ,async (req, res) => { 
     try{
         const firstLetter = req.body.firstLetterInput;
+
+        if (!firstLetter || firstLetter.trim() === "") {
+            return renderPage(res, { error: "Please enter a valid input" });
+        }
+
         const result = await axios.get(`${API_URL}/search.php?f=${firstLetter}`);
 
         if (!result.data.drinks) {
@@ -371,4 +389,83 @@ app.get("/login", (req, res) => {
 
 app.get("/signup", (req, res) => {
     res.render("signup.ejs", { error: null });
+});
+
+app.post("/add-to-favorites", async (req, res) => {
+    const { drinkName, image, ingredients, instructions } = req.body
+
+    const userId = req.session.user.id; 
+
+    try {
+        const result = await db.query(
+            "SELECT * FROM favorites WHERE user_id = $1 AND drink_name = $2",
+            [userId, drinkName]
+        );
+
+        if (result.rows.length > 0) {
+            return res.status(200).json({ success: true, message: "Already favorited" });
+        }
+
+        await db.query(
+            "INSERT INTO favorites (user_id, drink_name, image, ingredients, instructions) VALUES ($1, $2, $3, $4, $5)",
+            [userId, drinkName, image, ingredients, instructions]
+        );
+        res.status(200).json({ success: true, message: "Added to favorites!" });
+    } catch (error) {
+        console.error("Error adding to favorites:", error);
+        res.status(200).json({ success: true, message: "Added to favorites!" });
+    }
+});
+
+app.get("/favorites", restrict, async (req, res) => {
+    const userId = req.session.user.id;
+
+    try {
+        const result = await db.query(
+            "SELECT drink_name, image, ingredients, instructions FROM favorites WHERE user_id = $1",
+            [userId]
+        );
+
+        const favorites = result.rows.map(favorite => ({
+            ...favorite,
+            ingredients: JSON.parse(favorite.ingredients), // Parse ingredients JSON string
+        }));
+        res.render("favorites.ejs", { favorites });
+    } catch (error) {
+        console.error("Error fetching favorites:", error);
+        res.status(500).send("Failed to load favorites");
+    }
+});
+
+app.post("/remove-favorite", restrict, async (req, res) => {
+    const { drinkName } = req.body;
+    const userId = req.session.user.id;
+
+    try {
+        await db.query(
+            "DELETE FROM favorites WHERE user_id = $1 AND drink_name = $2",
+            [userId, drinkName]
+        );
+        res.redirect("/favorites");
+    } catch (error) {
+        console.error("Error removing favorite:", error);
+        res.status(500).send("Failed to remove favorite");
+    }
+}); 
+
+app.post("/is-favorited", restrict, async (req, res) => {
+    const { drinkName } = req.body;
+    const userId = req.session.user.id;
+
+    try {
+        const result = await db.query(
+            "SELECT * FROM favorites WHERE user_id = $1 AND drink_name = $2",
+            [userId, drinkName]
+        );
+
+        res.status(200).json({ favorited: result.rows.length > 0 });
+    } catch (error) {
+        console.error("Error checking favorite status:", error);
+        res.status(500).json({ favorited: false });
+    }
 });

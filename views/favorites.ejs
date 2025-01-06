@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Favorites</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="index-page">
+    <header class="header">
+        <div class="logo">
+            <h1>The Cocktail Dictionary</h1>
+        </div>
+        <div class="button-group">
+            <div class="account-dropdown">
+                <button class="dropdown-button">Account</button>
+                <div class="dropdown-content">
+                    <form method="GET" action="/logout">
+                        <button type="submit">Logout</button>
+                    </form>
+                    <form method="POST" action="/delete-account">
+                        <button type="submit" onclick="return confirm('Are you sure you want to delete your account?');">
+                            Delete Account
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <a href="/" class="home-button">Home</a>
+            <a href="/favorites" class="favorites-button">Favorites</a> 
+        </div>
+    </header>
+    <div class="container">
+        <h1 class="title">Your Favorite Cocktails</h1>
+        <div class="favorites-container">
+            <% if (favorites.length === 0) { %>
+                <p>No favorites yet! Add some cocktails to your favorites.</p>
+            <% } else { %>
+                <% favorites.forEach((favorite, index) => { %>
+                    <div class="favorite-item">
+                        <h2><%= favorite.drink_name %></h2>
+                        <img src="<%= favorite.image %>" alt="<%= favorite.drink_name %>">
+                        <button class="recipe-button" onclick="toggleRecipe('<%= index %>')">Recipe</button>
+                        <div id="recipe-<%= index %>" class="recipe-details">
+                            <h3>Ingredients:</h3>
+                            <ul>
+                                <% favorite.ingredients.forEach(ingredient => { %>
+                                    <li><%= ingredient.measure %> <%= ingredient.ingredient %></li>
+                                <% }); %>
+                            </ul>
+                            <h3>Instructions:</h3>
+                            <p><%= favorite.instructions %></p>  
+                        </div>
+                        <form method="POST" action="/remove-favorite">
+                            <input type="hidden" name="drinkName" value="<%= favorite.drink_name %>">
+                            <button type="submit">Remove from Favorites</button>
+                        </form>    
+                    </div>
+                <% }) %>
+            <% } %>
+        </div>
+    </div>
+    <footer class="bg-dark text-center text-white py-4">
+        <p>© 2025 Cocktail World. All rights reserved.</p>
+    </footer>
+    <script>
+        function toggleRecipe(index) {
+            const recipeDetails = document.getElementById(`recipe-${index}`);
+            recipeDetails.classList.toggle('show');
+        }
+    </script>
+</body>
+</html>

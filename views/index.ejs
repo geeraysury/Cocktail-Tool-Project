@@ -15,17 +15,22 @@
         <div class="logo">
             <h1>The Cocktail Dictionary</h1>
         </div>
-        <div class="account-dropdown">
-            <button class="dropdown-button">Account</button>
-            <div class="dropdown-content">
-                <form method="GET" action="/logout">
-                    <button type="submit">Logout</button>
-                </form>
-                <form method="POST" action="/delete-account">
-                    <button type="submit" onclick="return confirm('Are you sure you want to delete your account?');">Delete Account</button>
-                </form>
+        <div class="button-group">
+            <div class="account-dropdown">
+                <button class="dropdown-button">Account</button>
+                <div class="dropdown-content">
+                    <form method="GET" action="/logout">
+                        <button type="submit">Logout</button>
+                    </form>
+                    <form method="POST" action="/delete-account">
+                        <button type="submit" onclick="return confirm('Are you sure you want to delete your account?');">Delete Account</button>
+                    </form>
+                </div>
             </div>
-        </div>
+            <div class="favorites-button">
+                <a href="/favorites">Favorites</a>
+            </div>
+        </div>  
     </header>
 
     <div class="container">    
@@ -54,10 +59,7 @@
             <div id="firstLetterInput" class="search-input" style="display: none;">
                 <label for="firstLetter">Enter First Letter:</label>
                 <input type="text" id="firstLetter" name="firstLetterInput" maxlength="1">
-    
-                <hr>
-                <p><strong>Filters and Sorting (Only for First Letter Search):</strong></p>
-    
+
                 <!-- Filters -->
                 <label for="alcLevel">Filter by Alcohol Level:</label>
                 <select name="alcLevel">
@@ -106,20 +108,18 @@
             <input type="submit" id="randomButton" value="Click for a Random Cocktail">
         </form>
     
-        <!-- Response Area -->
-        <% if (drinkName || alcName || firstLetter) { %>
-            <div class="response-area">
-                <% if (error) { %>
-                    <h2><%= error %></h2>
-                <% } else if (drinkName) { %>
-                    <%- include ('./cocktail', {drinkName: drinkName}) %>
-                <% } else if (alcName) { %>
-                    <%- include ('./alcohol', {alcName: alcName}) %>
-                <% } else if (firstLetter) { %>
-                    <%- include ('./firstletter', {firstLetter: firstLetter}) %>
-                <% } %>
-            </div>   
-        <% } %>
+    <!-- Response Area -->
+        <div class="response-area">
+            <% if (error) { %>
+                <h2><%= error %></h2>
+            <% } else if (drinkName) { %>
+                <%- include ('./cocktail', {drinkName: drinkName}) %>
+            <% } else if (alcName) { %>
+                <%- include ('./alcohol', {alcName: alcName}) %>
+            <% } else if (firstLetter) { %>
+                <%- include ('./firstletter', {firstLetter: firstLetter}) %>
+            <% } %>
+        </div>   
     </div>
     <footer class="bg-dark text-center text-white py-4">
         <p>© 2025 Cocktail World. All rights reserved.</p>
@@ -151,6 +151,7 @@
                 alert("Please select a search type.");
             }
         });
+    
     </script>
     
 </body>

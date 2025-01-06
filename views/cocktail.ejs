@@ -1,6 +1,13 @@
-<h2 class="title">
-    <%=drinkName %>
-</h2>
+<div class="title-container">
+    <h2 class="title"> <%=drinkName %> </h2>
+    <form id="addToFavoritesForm" class="favorites-form">
+        <input type="hidden" name="drinkName" value="<%= drinkName %>">
+        <input type="hidden" name="image" value="<%= image %>">
+        <input type="hidden" name="ingredients" value="<%= JSON.stringify(ingredients) %>">
+        <input type="hidden" name="instructions" value="<%= instructionsSteps.join('. ') %>">
+        <button type="button" id="addToFavoritesButton" class="styled-button">Add to Favorites</button>
+    </form>
+</div>
 <%- include('./partials/image', { image: image, altText: drinkName }) %>
 
 <h3>Ingredients:</h3>
@@ -14,5 +21,38 @@
         <li><%= step.trim() %></li>
     <% }); %>
 </ol>
+
+<script>
+    document.getElementById("addToFavoritesButton").addEventListener("click", function () {
+        // USE THIS INSTEAD
+        const form = document.getElementById("addToFavoritesForm");
+        const data = {
+            drinkName: form.querySelector('input[name="drinkName"]').value,
+            image: form.querySelector('input[name="image"]').value,
+            ingredients: form.querySelector('input[name="ingredients"]').value,
+            instructions: form.querySelector('input[name="instructions"]').value,
+        };
+
+        fetch("/add-to-favorites", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        })
+            .then((response) => response.json())
+                .then((result) => {
+                    if (result.success) {
+                        alert(result.message); 
+                    } else {
+                        alert(result.message);
+                    }
+                })
+            .catch(error => {
+                console.error("Error adding to favorites:", error);
+                alert("An error occurred. Please try again.");
+            });
+    });
+</script>
 
 <%- include('./partials/error', { error: error }) %>
