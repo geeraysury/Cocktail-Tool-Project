@@ -31,6 +31,7 @@ node index.js
 http://localhost:3000
 
 How to Use the Website:
+1. Open your terminal and navigate to the directory where you want to store the project. Then run: git clone
 1. Sign up using any username and password you would like
 2. Log in using the username and password you inputted, and you will be redirected to the homepage
 3. Input values based on the input title on the boxes, or click the "Random Cocktail" button to get a random cocktail recipe.
