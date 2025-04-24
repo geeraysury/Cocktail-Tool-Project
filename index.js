@@ -40,7 +40,7 @@ const restrict = (req, res, next) => {
 const db = new Pool({
     host: "localhost",
     user: "postgres",
-    password: "iLoveGyubee",
+    password: "your-password",
     database: "cocktail_api_project",
     port: 5432,
 });
