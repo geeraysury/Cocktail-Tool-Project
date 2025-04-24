@@ -1,26 +1,26 @@
-This project is a web-based cocktail dictionary website built with Node.js, Express, and Axios. Users can search for cocktails by name, alcohol type, first letter, or even randomize their selection. The website fetches data from TheCocktailDB API and allows users to view detailed information about cocktails, including ingredients, preparation instructions, and more.
+This is a web-based cocktail dictionary built with Node.js, Express, and Axios, using data from TheCocktailDB API. Users can search for cocktails, get random drink ideas, view ingredients and instructions, and save their favorites. User login and data storage are handled using PostgreSQL.
 
-Objective:
-The goal of this project is to create a user-friendly interface where users can:
-* Search cocktails by name and get recipes.
-* Search alcohol types and view descriptions.
-* Get a random cocktail recipe.
-* Filter and sort cocktails.
-* Sign up and log in securely using SQL for user authentication.
+Project Goal
+Create a fun, user-friendly cocktail search tool where users can:
+- Search cocktails by name, alcohol type, or first letter
+- Get a random cocktail
+- Filter and sort drinks by alcohol level, glass type, or category
+- Sign up / log in securely using PostgreSQL, and save their favorites cocktail
 
-Features:
-* Search Cocktails: Users can search for cocktails by name or first letter and receive detailed recipes.
-* Random Selection: Users can randomize their cocktail search for surprise results.
-* Filtering and Sorting: Users can filter results by alcohol content, category, or glass type and sort them alphabetically or by ingredients/instructions.
-* User Authentication: Users can sign up and log in securely using their credentials, which are stored in a PostgreSQL database.
-* Direct to Homepage: After logging in, users are redirected to the homepage where they can begin their searches.
+Main Features
+- Cocktail Search – Search by name or letter and view full recipes
+- Alcohol Lookup – Search alcohols and view descriptions
+- Random Drink Generator – Get a surprise cocktail suggestion
+- Filtering & Sorting – Filter by alcohol level or glass type; sort alphabetically or by recipe length
+- User Auth – Sign up, log in, and store data securely in PostgreSQL
 
-Algorithm Overview:
-1.  Users can submit a search query via the web interface, which sends a request to the respective API endpoint. If searching by cocktail name, the app fetches detailed information (ingredients, instructions, and image) and displays it.
-2. When searching by first letter, users can apply filters like alcohol content or glass type. Users can also sort the results by the number of ingredients or instructions, or alphabetically by name.
-3. SQL-based user authentication allows users to securely sign up and log in, with their credentials stored in a PostgreSQL database.
-4. Once logged in, users are directed to the homepage, where they can explore the cocktail dictionary and utilize all available features.
-5. The app dynamically renders results on the page, using EJS to handle the presentation logic.
+Simplified Algorithm
+1. Users enter a search → the app sends a request to TheCocktailDB API
+2. The response includes drink details (ingredients, instructions, image)
+3. Users can sort and filter results or randomize their search
+4. Signups and logins are handled via SQL (PostgreSQL)
+5. Logged-in users can explore all features and save favorite drinks
+6. Everything is rendered with EJS for a clean UI
 
 How to Run the Project:
 1. Open your terminal and navigate to the directory where you want to store the project. Then run: git clone https://github.com/geeraysury/Cocktail-Tool-Project.git
@@ -56,4 +56,3 @@ How to Use the Website:
 2. Log in using the username and password you inputted, and you will be redirected to the homepage
 3. Input values based on the input title on the boxes, or click the "Random Cocktail" button to get a random cocktail recipe.
 4. When searching by the first letter, combine different filters (alcohol content, category, glass type) and sorting options for tailored results.
-
