@@ -25,11 +25,25 @@ Algorithm Overview:
 How to Run the Project:
 1. Open your terminal and navigate to the directory where you want to store the project. Then run: git clone https://github.com/geeraysury/Cocktail-Tool-Project.git
 2. Navigate into the project folder: cd your-repo-name
-3. To install npm, use this code at the terminal in the project directory:
-npm i 
-4. To start server, use this code:
+4. To install npm, use this code at the terminal in the project directory:
+npm i
+5. Set up your PostgreSQL Database. Make sure PostgreSQL is installed and running. Then open your SQL shell and run:
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS favorites (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    drink_name VARCHAR(255) NOT NULL,
+    image TEXT,
+    ingredients TEXT NOT NULL, 
+    instructions TEXT
+);
+7. To start server, use this code:
 node index.js
-5. Search on your browser:
+8. Search on your browser:
 http://localhost:3000
 
 How to Use the Website:
