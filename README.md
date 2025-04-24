@@ -23,15 +23,16 @@ Algorithm Overview:
 5. The app dynamically renders results on the page, using EJS to handle the presentation logic.
 
 How to Run the Project:
-1. To install npm, use this code at the terminal in the project directory:
+1. Open your terminal and navigate to the directory where you want to store the project. Then run: git clone https://github.com/geeraysury/Cocktail-Tool-Project.git
+2. Navigate into the project folder: cd your-repo-name
+3. To install npm, use this code at the terminal in the project directory:
 npm i 
-2. To start server, use this code:
+4. To start server, use this code:
 node index.js
-3. Search on your browser:
+5. Search on your browser:
 http://localhost:3000
 
 How to Use the Website:
-1. Open your terminal and navigate to the directory where you want to store the project. Then run: git clone
 1. Sign up using any username and password you would like
 2. Log in using the username and password you inputted, and you will be redirected to the homepage
 3. Input values based on the input title on the boxes, or click the "Random Cocktail" button to get a random cocktail recipe.
