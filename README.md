@@ -27,10 +27,9 @@ Create a fun, user-friendly cocktail search tool where users can:
 2. Navigate into the project folder: cd your-repo-name
 3. To install npm, use this code at the terminal in the project directory:
 npm i
-4. Set up your PostgreSQL Database. Make sure PostgreSQL is installed and running. Then open your SQL shell and run:
-createdb cocktail_api_project
+4. Set up your PostgreSQL Database. Make sure PostgreSQL is installed and running. Then open your SQL shell and create a new database called: cocktail_api_project
 
-Open query and run:
+5. Open the database query and run:
 - CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
@@ -45,10 +44,10 @@ Open query and run:
     instructions TEXT
 );
 
-5. In index.js, change the value of user and password to your actual DB user and password
-6. To start server, use this code:
+6. In index.js, change the value of user and password to your actual DB user and password
+7. To start server, use this code:
 node index.js
-7. Search on your browser:
+8. Search on your browser:
 http://localhost:3000
 
 **How to Use the Website:**
