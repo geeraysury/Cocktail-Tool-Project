@@ -39,9 +39,7 @@ const restrict = (req, res, next) => {
 
 const db = new Pool({
     connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
+  ssl: process.env.DATABASE_URL.includes('railway') ? { rejectUnauthorized: false } : false
 });
 
 const createTables = async () => {
