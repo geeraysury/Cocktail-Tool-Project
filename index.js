@@ -9,7 +9,7 @@ import { fileURLToPath } from "url";
 import multer from "multer";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const { Pool } = require('pg');
+const { Pool } = pkg;
 const app = express();
 const port = 3000;
 const API_URL = "https://www.thecocktaildb.com/api/json/v1/1";
