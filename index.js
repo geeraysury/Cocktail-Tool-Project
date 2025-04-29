@@ -9,7 +9,7 @@ import { fileURLToPath } from "url";
 import multer from "multer";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const { Pool } = pkg;
+const { Pool } = require('pg');
 const app = express();
 const port = 3000;
 const API_URL = "https://www.thecocktaildb.com/api/json/v1/1";
@@ -38,12 +38,13 @@ const restrict = (req, res, next) => {
 };
 
 const db = new Pool({
-    host: "localhost",
-    user: "postgres",
-    password: "your-password",
-    database: "cocktail_api_project",
-    port: 5432,
+    host: process.env.DB_HOST || "localhost", 
+    user: process.env.DB_USER || "postgres",
+    password: process.env.DB_PASSWORD || "iLoveGyubee",
+    database: process.env.DB_DATABASE || "cocktail_api_project",
+    port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 5432,
 });
+
 db.connect();
 
 const fetchFilterData = async (endpoint) => {
