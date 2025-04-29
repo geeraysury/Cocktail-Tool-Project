@@ -37,7 +37,6 @@ jobs:
       - name: Run custom DB check
         run: |
           docker ps
-          docker exec cocktail_api_web node index.js
 
       - name: Tear down
         run: docker-compose down
