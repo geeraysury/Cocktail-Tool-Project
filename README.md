@@ -1,5 +1,8 @@
 This is a web-based cocktail dictionary built with Node.js, Express, and Axios, using data from TheCocktailDB API. Users can search for cocktails, get random drink ideas, view ingredients and instructions, and save their favorites. User login and data storage are handled using PostgreSQL.
 
+Live Website Link:
+https://cocktaildictionary-website-production.up.railway.app/random-cocktail
+
 **Project Goal**
 Create a fun, user-friendly cocktail search tool where users can:
 - Search cocktails by name, alcohol type, or first letter
