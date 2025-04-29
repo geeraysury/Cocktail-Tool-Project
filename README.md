@@ -31,27 +31,7 @@ Create a fun, user-friendly cocktail search tool where users can:
 npm i
 4. Make sure Docker Desktop is installed and running. Then in terminal type:
 docker-compose up --build
-5. Once running, type:
-docker exec -it cocktail_api_db psql -U postgres -d cocktail_api_project
-Then in the shell, type:
-- CREATE TABLE IF NOT EXISTS users (
-  id SERIAL PRIMARY KEY,
-  username VARCHAR(50) UNIQUE NOT NULL,
-  password TEXT NOT NULL
-);
-
-- CREATE TABLE IF NOT EXISTS favorites (
-  id SERIAL PRIMARY KEY,
-  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-  drink_name VARCHAR(255) NOT NULL,
-  image TEXT,
-  ingredients TEXT NOT NULL,
-  instructions TEXT
-
-);
-- Then to exit: \q
-
-6. Search on your browser:
+5. Search on your browser:
 http://localhost:3000
 
 **How to Use the Website:**
