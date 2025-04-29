@@ -23,8 +23,7 @@ Create a fun, user-friendly cocktail search tool where users can:
 6. Everything is rendered with EJS for a clean UI
 
 **How to Run the Project:**
-⚠️ You do NOT need to install PostgreSQL manually.
-This project uses Docker to run both the Node.js server and PostgreSQL automatically
+- This project uses Docker to run both the Node.js server and PostgreSQL automatically
 
 1. Open your terminal and navigate to the directory where you want to store the project. Then run: git clone https://github.com/geeraysury/CocktailDictionary-Website.git
 2. Navigate into the project folder: cd CocktailDictionary-Website
@@ -50,7 +49,7 @@ Then in the shell, type:
   instructions TEXT
 
 );
-Then to exit: \q
+- Then to exit: \q
 
 6. Search on your browser:
 http://localhost:3000
