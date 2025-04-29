@@ -23,31 +23,31 @@ Create a fun, user-friendly cocktail search tool where users can:
 6. Everything is rendered with EJS for a clean UI
 
 **How to Run the Project:**
-1. Open your terminal and navigate to the directory where you want to store the project. Then run: git clone https://github.com/geeraysury/Cocktail-Tool-Project.git
-2. Navigate into the project folder: cd your-repo-name
+1. Open your terminal and navigate to the directory where you want to store the project. Then run: git clone https://github.com/geeraysury/CocktailDictionary-Website.git
+2. Navigate into the project folder: cd CocktailDictionary-Website
 3. To install npm, use this code at the terminal in the project directory:
 npm i
-4. Set up your PostgreSQL Database. Make sure PostgreSQL is installed and running. Then open your SQL shell and create a new database called: cocktail_api_project
-
-5. Open the database query and run:
-- CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    password TEXT NOT NULL
-);
-- CREATE TABLE IF NOT EXISTS favorites (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    drink_name VARCHAR(255) NOT NULL,
-    image TEXT,
-    ingredients TEXT NOT NULL, 
-    instructions TEXT
+4. Make sure Docker Desktop is installed and running. Then in terminal type:
+docker-compose up --build
+5. Once running, type:
+docker exec -it cocktail_api_db psql -U postgres -d cocktail_api_project
+Then in the shell, type:
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
+  username VARCHAR(50) UNIQUE NOT NULL,
+  password TEXT NOT NULL
 );
 
-6. In index.js, change the value of user and password to your actual DB user and password
-7. To start server, use this code:
-node index.js
-8. Search on your browser:
+CREATE TABLE IF NOT EXISTS favorites (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  drink_name VARCHAR(255) NOT NULL,
+  image TEXT,
+  ingredients TEXT NOT NULL,
+  instructions TEXT
+);
+
+6. Search on your browser:
 http://localhost:3000
 
 **How to Use the Website:**
