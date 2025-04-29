@@ -44,6 +44,32 @@ const db = new Pool({
   }
 });
 
+const createTables = async () => {
+  try {
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(50) UNIQUE NOT NULL,
+        password TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS favorites (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        drink_name VARCHAR(255) NOT NULL,
+        image TEXT,
+        ingredients TEXT NOT NULL,
+        instructions TEXT
+      );
+    `);
+
+    console.log('✅ Tables are ready');
+  } catch (err) {
+    console.error('❌ Error creating tables:', err);
+  }
+};
+
+createTables();
 export default db;
 
 const fetchFilterData = async (endpoint) => {
