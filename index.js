@@ -38,14 +38,13 @@ const restrict = (req, res, next) => {
 };
 
 const db = new Pool({
-    host: process.env.DB_HOST || "localhost", 
-    user: process.env.DB_USER || "postgres",
-    password: process.env.DB_PASSWORD || "iLoveGyubee",
-    database: process.env.DB_DATABASE || "cocktail_api_project",
-    port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 5432,
+    connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
-db.connect();
+export default db;
 
 const fetchFilterData = async (endpoint) => {
     const response = await axios.post(`${API_URL}/${endpoint}`);
